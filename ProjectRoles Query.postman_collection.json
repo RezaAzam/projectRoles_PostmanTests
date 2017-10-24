@@ -1,0 +1,2570 @@
+{
+	"variables": [],
+	"info": {
+		"name": "ProjectRoles Query",
+		"_postman_id": "5cb3b095-843a-9c85-eb8a-03680d6df3a8",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "ByMember",
+			"description": "",
+			"item": [
+				{
+					"name": "NoParameters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var memberCount = responseData.total;",
+									"var memberList = _.chain(responseData.assets).map(function(pr){return pr.member.name});",
+									"var uniqProjectRoles = _.chain(responseData.assets).map(function(pn){return pn.member.defaultRole.name;}).unique();",
+									"var uniqProjectNames = _.chain(responseData.assets).map(function(pn){return pn.projectRoles;}).flatten().map(function(nr){return nr.project.name;}).unique();",
+									"",
+									" var expectedMembers = [ \"Administrator\", \"Andre Agile\", \"Alfred Smith\", \"Tammy Coder\", \"Danny Developer\", \"Boris Tester\", \"Claus Lead\", \"Willy Webguy\", \"Vijay Vistor\", \"Joe IT\", \"Sarah Documentor\", \"Norman Newbie\", \"Bonnie BA\", \"Quality Center\", \"Ellen Executive\", \"Penelope Program\", \"Ronnie Release\" ];",
+									"var expectedUniqProjectRoles = [\"System Admin\",\"Project Lead\",\"Team Member\",\"Visitor\",\"Customer\",\"Project Admin\"];",
+									"var countOfProjectRoles = _.size(responseData.assets.map(function(mr){return mr.projectRoles}).flatten().map(function(mn){return mn.role.name}));",
+									"var expectedUniqProjectNames = [\"System (All Projects)\",\"EZ Support Inc.\",\"Development\",\"Call Center\",\"Corporate Website\",\"Maintenance\",\"Release 0.5\",\"Release 0.9\",\"Old Maintenance\",\"Old Website\",\"Release 1.0\",\"Release 2.0\"];",
+									"var countOfProjectNames = _.size(responseData.assets.map(function(mr){return mr.projectRoles}).flatten().map(function(mn){return mn.role.name}));",
+									"",
+									"//************TESTS************************",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Count of returned members is correct: ' +  JSON.stringify(memberCount)]= memberCount === 17;",
+									"tests['List of returned members is correct: ' + JSON.stringify(memberList)] = _.isEqual(memberList, expectedMembers);",
+									"tests['Total count of roles returned for ALL projects is correct: ' + JSON.stringify(countOfProjectRoles)] = countOfProjectRoles === 146;",
+									"tests['List of unique default roles is correct: ' + JSON.stringify(uniqProjectRoles) + ' compare to Expected: ' + JSON.stringify(expectedUniqProjectRoles)] = _.isEqual(uniqProjectRoles,expectedUniqProjectRoles);",
+									"tests['Total count of projects returned for ALL members is correct: ' + JSON.stringify(countOfProjectNames)] = countOfProjectNames === 146;",
+									"tests['List of unique project names is correct: ' + JSON.stringify(uniqProjectNames) + ' compare to Expected: ' + JSON.stringify(expectedUniqProjectNames)] = _.isEqual(uniqProjectNames,expectedUniqProjectNames);",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Valid Member Id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberId = postman.getEnvironmentVariable(\"memberId\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var returnedProjectsList = _.chain(responseData.assets).map(function(pr){ return pr.projectRoles;}).flatten().map(function(mr){ return mr.project.name;}).unique();",
+									"var expectedProjectsList =  [\"EZ Support Inc.\",\"Development\",\"Corporate Website\",\"Maintenance\",\"Old Maintenance\",\"Old Website\"];",
+									"var countOfProjects = _.size(responseData.assets.map(function(mr){return mr.projectRoles}).flatten().map(function(mn){return mn.project.name;}));",
+									"var returnedMemberId = _.chain(responseData.assets).map(function(pr){return pr.member.oidToken;});",
+									"var strMemberID = JSON.stringify(returnedMemberId).replace(/\"/g,\"\").replace(\"[\",\"\").replace(\"]\",\"\");",
+									"",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Member Oid is correct ' + strMemberID] = memberId === strMemberID; ",
+									"tests['Projects are: ' + JSON.stringify(returnedProjectsList)] = _.isEqual(expectedProjectsList, returnedProjectsList);",
+									"tests['Contains ' + countOfProjects + ' projects'] = countOfProjects === 6;"
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberId\", \"Member:20\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember?where=ID='{{memberId}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Invalid Member ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberId = postman.getEnvironmentVariable(\"memberId\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									"  \"message\": \"Invalid QueryFilter2 token ID='Member:mm'\",",
+									"  \"exceptions\": [",
+									"    {",
+									"      \"class\": \"System.FormatException\",",
+									"      \"message\": \"Invalid QueryFilter2 token ID='Member:mm'\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.OidException\",",
+									"      \"message\": \"Invalid OID token: Member:mm\"",
+									"    },",
+									"    {",
+									"      \"class\": \"System.FormatException\",",
+									"      \"message\": \"Input string was not in a correct format.\"",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is \" + responseCode.code] = responseCode.code === 400;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData); ",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberId\", \"Member:mm\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember?where=ID='{{memberId}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Member ID DNE",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberId = postman.getEnvironmentVariable(\"memberId\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									"  \"total\": 0,",
+									"  \"assets\": []",
+									"};",
+									"",
+									"tests[\"Status code is \" + responseCode.code] = responseCode.code === 200;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData); ",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberId\", \"Member:1093\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember?where=ID='{{memberId}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Invalid Member Attribute",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberCreatedBy = postman.getEnvironmentVariable(\"memberCreatedBy\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									"  \"message\": \"Invalid QueryFilter2 token CreatedBy='Administrator'\",",
+									"  \"exceptions\": [",
+									"    {",
+									"      \"class\": \"System.FormatException\",",
+									"      \"message\": \"Invalid QueryFilter2 token CreatedBy='Administrator'\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.OidException\",",
+									"      \"message\": \"Invalid OID token: Administrator\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.MetaException\",",
+									"      \"message\": \"Unknown token: Administrator\"",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is \" + responseCode.code] = responseCode.code === 400;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData); ",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberCreatedBy\", \"Administrator\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember?where=CreatedBy='{{memberCreatedBy}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Valid Member Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberName = postman.getEnvironmentVariable(\"memberName\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var projList = _.chain(responseData.assets).map(function(pr){ return pr.projectRoles;}).flatten().map(function(mr){ return mr.project.name;}).unique();",
+									"var countOfProjects = _.size(responseData.assets.map(function(mr){return mr.projectRoles}).flatten().map(function(mn){return mn.project.name}));",
+									"var expectedProjectList = [\"EZ Support Inc.\",\"Development\",\"Corporate Website\",\"Maintenance\",\"Old Maintenance\",\"Old Website\"];",
+									"var returnedMemberName = _.chain(responseData.assets).map(function(pr){return pr.member.name});",
+									"var strMemberName = JSON.stringify(returnedMemberName).replace(/\"/g,\"\").replace(\"[\",\"\").replace(\"]\",\"\");",
+									"",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Member Name is correct ' + strMemberName] = memberName === strMemberName; ",
+									"tests['Projects are correct: ' + JSON.stringify(projList)] = _.isEqual(expectedProjectList,projList);",
+									"tests['Contains ' + countOfProjects + ' project(s)'] = countOfProjects === 6;"
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberName\", \"Ellen Executive\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember?where=Name='{{memberName}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Invalid Member Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberName = postman.getEnvironmentVariable(\"memberName\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									"  \"message\": \"Invalid QueryFilter2 token Name='\",",
+									"  \"exceptions\": [",
+									"    {",
+									"      \"class\": \"System.FormatException\",",
+									"      \"message\": \"Invalid QueryFilter2 token Name='\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.Parsing.MismatchedCharException\",",
+									"      \"message\": \"Position 7: expecting ''', found '<EOF>'\"",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is \" + responseCode.code] = responseCode.code === 400;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData); ",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberName\", \"&#\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember?where=Name='{{memberName}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Member Name DNE",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberName = postman.getEnvironmentVariable(\"memberName\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									"  \"total\": 0,",
+									"  \"assets\": []",
+									"};",
+									"",
+									"tests[\"Status code is \" + responseCode.code] = responseCode.code === 200;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData); ",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberName\", \"Sam Bee\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember?where=Name='{{memberName}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?projectsWhere Valid Project Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var projName = postman.getEnvironmentVariable(\"projName\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"// var projList = _.chain(responseData).map(function(pr){ return pr.project;}).flatten().map(function(mr){ return mr.name;}).unique().value();",
+									"",
+									"var returnedProjectName = _.chain(responseData.assets).map(function(pn){return pn.projectRoles;}).flatten().map(function(nr){return nr.project.name;}).unique();",
+									"var strProjectName = JSON.stringify(returnedProjectName).replace(\"[\",\"\").replace(\"]\",\"\").replace(/\"/g,\"\");",
+									"var returnedMembersList = _.chain(responseData.assets).flatten().map(function(mr){return mr.member.name;}).unique();",
+									"var expectedMembersList = [\"Administrator\",\"Andre Agile\",\"Alfred Smith\",\"Ellen Executive\",\"Penelope Program\"]",
+									"var memberList = responseData.assets.length;",
+									"",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Project Name is correct: ' + strProjectName] = projName === strProjectName; ",
+									"tests['Project Members are correct ' + JSON.stringify(returnedMembersList)] = _.isEqual(expectedMembersList,returnedMembersList);",
+									"tests['Contains 5 members'] = memberList === 5;",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"projName\", \"Development\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember?projectsWhere=Name='{{projName}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?projectsWhere Invalid Project Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var projName = postman.getEnvironmentVariable(\"projName\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									"  \"message\": \"Invalid QueryFilter2 token Name='\",",
+									"  \"exceptions\": [",
+									"    {",
+									"      \"class\": \"System.FormatException\",",
+									"      \"message\": \"Invalid QueryFilter2 token Name='\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.Parsing.MismatchedCharException\",",
+									"      \"message\": \"Position 7: expecting ''', found '<EOF>'\"",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is \" + responseCode.code] = responseCode.code === 400;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData); ",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"projName\", \"&#\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember?projectsWhere=Name='{{projName}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?projectsWhere Project Name DNE",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var projName = postman.getEnvironmentVariable(\"projName\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									" \"total\": 0,",
+									" \"assets\": [ ]",
+									"};",
+									"",
+									"",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData); ",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"projName\", \"Popsicle\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember?projectsWhere=Name='{{projName}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?projectsWhere Valid Project ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var projId = postman.getEnvironmentVariable(\"projId\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var memberList = _.chain(responseData.assets).map(function(pr){ return pr.member.name;}).unique().value();",
+									"var expectedMemberList =  [\"Administrator\",\"Andre Agile\",\"Alfred Smith\",\"Ellen Executive\",\"Penelope Program\"];",
+									"var returnedProjectId = _.chain(responseData.assets).map(function(pn){return pn.projectRoles;}).flatten().map(function(nr){return nr.project.oidToken;}).unique();",
+									"var strProjectId = JSON.stringify(returnedProjectId).replace(\"[\",\"\").replace(\"]\",\"\").replace(/\"/g,\"\");",
+									"var memberListCount = responseData.assets.length;",
+									"",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Project Name is correct: ' + strProjectId] = projId === strProjectId; ",
+									"tests['Contains 5 members'] = memberListCount === 5;",
+									"tests['Members are correct: ' + JSON.stringify(memberList)] = _.isEqual(expectedMemberList,memberList);",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"projId\", \"Scope:1067\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember?projectsWhere=ID='{{projId}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?projectsWhere Invalid Project ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var projId = postman.getEnvironmentVariable(\"projId\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									"  \"message\": \"Invalid QueryFilter2 token ID='\",",
+									"  \"exceptions\": [",
+									"    {",
+									"      \"class\": \"System.FormatException\",",
+									"      \"message\": \"Invalid QueryFilter2 token ID='\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.Parsing.MismatchedCharException\",",
+									"      \"message\": \"Position 5: expecting ''', found '<EOF>'\"",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is \" + responseCode.code] = responseCode.code === 400;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData); ",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"projId\", \"&#\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember?projectsWhere=ID='{{projId}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?projectsWhere Project ID DNE",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var projId = postman.getEnvironmentVariable(\"projId\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									" \"total\": 0,",
+									" \"assets\": [ ]",
+									"};",
+									"",
+									"",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData); ",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"projId\", \"Scope:5000\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember?projectsWhere=ID='{{projId}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Valid Member Id & projectsWhere Valid Project Id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberId = postman.getEnvironmentVariable(\"memberId\");",
+									"var projId = postman.getEnvironmentVariable(\"projId\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var returnedMemberId = _.chain(responseData.assets).map(function(pr){return pr.member.oidToken;});",
+									"var strMemberID = JSON.stringify(returnedMemberId).replace(/\"/g,\"\").replace(\"[\",\"\").replace(\"]\",\"\");",
+									"var returnedProjectId = _.chain(responseData.assets).map(function(pr){ return pr.projectRoles;}).flatten().map(function(mr){ return mr.project.oidToken;});",
+									"var strProjectID = JSON.stringify(returnedProjectId).replace(/\"/g,\"\").replace(\"[\",\"\").replace(\"]\",\"\");",
+									"var expected = {",
+									"  \"total\": 1,",
+									"  \"assets\": [",
+									"    {",
+									"      \"member\": {",
+									"        \"oidToken\": \"Member:1057\",",
+									"        \"name\": \"Ellen Executive\",",
+									"        \"email\": \"ellen.executive@company.com\",",
+									"        \"defaultRole\": {",
+									"          \"oidToken\": \"Role:7\",",
+									"          \"name\": \"Customer\"",
+									"        }",
+									"      },",
+									"      \"projectRoles\": [",
+									"        {",
+									"          \"isOwner\": true,",
+									"          \"project\": {",
+									"            \"oidToken\": \"Scope:1067\",",
+									"            \"name\": \"Development\"",
+									"          },",
+									"          \"role\": {",
+									"            \"oidToken\": \"Role:7\",",
+									"            \"name\": \"Customer\"",
+									"          }",
+									"        }",
+									"      ]",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Member Oid is correct ' + strMemberID] = memberId === strMemberID; ",
+									"tests['Project Oid is correct ' + strProjectID] = projId === strProjectID; ",
+									"tests['JSON response is correct'] = _.matches(expected)(responseData);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberId\", \"Member:1057\");",
+									"postman.setEnvironmentVariable(\"projId\", \"Scope:1067\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember?where=ID='{{memberId}}'&projectsWhere=ID='{{projId}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Valid Member Id & projectsWhere Invalid Project Id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberId = postman.getEnvironmentVariable(\"memberId\");",
+									"var projId = postman.getEnvironmentVariable(\"projId\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"",
+									"var expected = {",
+									"  \"message\": \"Invalid QueryFilter2 token ID='1067'\",",
+									"  \"exceptions\": [",
+									"    {",
+									"      \"class\": \"System.FormatException\",",
+									"      \"message\": \"Invalid QueryFilter2 token ID='1067'\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.OidException\",",
+									"      \"message\": \"Invalid OID token: 1067\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.MetaException\",",
+									"      \"message\": \"Unknown token: 1067\"",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is \" + responseCode.code] = responseCode.code === 400;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberId\", \"Member:1048\");",
+									"postman.setEnvironmentVariable(\"projId\", \"1067\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember?where=ID='{{memberId}}'&projectsWhere=ID='{{projId}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Valid Member Name & projectsWhere Valid Project Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberName = postman.getEnvironmentVariable(\"memberName\");",
+									"var projName = postman.getEnvironmentVariable(\"projName\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var returnedMemberName = _.chain(responseData.assets).map(function(pr){return pr.member.name;});",
+									"var strMemberName = JSON.stringify(returnedMemberName).replace(/\"/g,\"\").replace(\"[\",\"\").replace(\"]\",\"\");",
+									"var returnedProjectName = _.chain(responseData.assets).map(function(pr){ return pr.projectRoles;}).flatten().map(function(mr){ return mr.project.name;});",
+									"var strProjectName = JSON.stringify(returnedProjectName).replace(/\"/g,\"\").replace(\"[\",\"\").replace(\"]\",\"\");",
+									"var expected = {",
+									"  \"total\": 1,",
+									"  \"assets\": [",
+									"    {",
+									"      \"member\": {",
+									"        \"oidToken\": \"Member:1057\",",
+									"        \"name\": \"Ellen Executive\",",
+									"        \"email\": \"ellen.executive@company.com\",",
+									"        \"defaultRole\": {",
+									"          \"oidToken\": \"Role:7\",",
+									"          \"name\": \"Customer\"",
+									"        }",
+									"      },",
+									"      \"projectRoles\": [",
+									"        {",
+									"          \"isOwner\": true,",
+									"          \"project\": {",
+									"            \"oidToken\": \"Scope:1067\",",
+									"            \"name\": \"Development\"",
+									"          },",
+									"          \"role\": {",
+									"            \"oidToken\": \"Role:7\",",
+									"            \"name\": \"Customer\"",
+									"          }",
+									"        }",
+									"      ]",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Member Oid is correct ' + strMemberName] = memberName === strMemberName; ",
+									"tests['Project Oid is correct ' + strProjectName] = projName === strProjectName; ",
+									"tests['JSON response is correct'] = _.matches(expected)(responseData);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberName\", \"Ellen Executive\");",
+									"postman.setEnvironmentVariable(\"projName\", \"Development\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember?where=Name='{{memberName}}'&projectsWhere=Name='{{projName}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Valid Member Name & projectsWhere Invalid Project Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberId = postman.getEnvironmentVariable(\"memberId\");",
+									"var projId = postman.getEnvironmentVariable(\"projId\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"",
+									"var expected = {",
+									"  \"message\": \"Invalid QueryFilter2 token Name='\",",
+									"  \"exceptions\": [",
+									"    {",
+									"      \"class\": \"System.FormatException\",",
+									"      \"message\": \"Invalid QueryFilter2 token Name='\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.Parsing.MismatchedCharException\",",
+									"      \"message\": \"Position 7: expecting ''', found '<EOF>'\"",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is \" + responseCode.code] = responseCode.code === 400;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberName\", \"Claus Lead\");",
+									"postman.setEnvironmentVariable(\"projName\", \"&&\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember?where=Name='{{memberName}}'&projectsWhere=Name='{{projName}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Valid Member Name & projectsWhere Invalid Project Attribute",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberId = postman.getEnvironmentVariable(\"memberId\");",
+									"var projId = postman.getEnvironmentVariable(\"projId\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"",
+									"var expected = {",
+									"  \"message\": \"Invalid QueryFilter2 token Level='Portfolio'\",",
+									"  \"exceptions\": [",
+									"    {",
+									"      \"class\": \"System.FormatException\",",
+									"      \"message\": \"Invalid QueryFilter2 token Level='Portfolio'\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.MetaException\",",
+									"      \"message\": \"Unknown AttributeDefinition: Scope.Level\"",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is \" + responseCode.code] = responseCode.code === 400;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberName\", \"Claus Lead\");",
+									"postman.setEnvironmentVariable(\"projLevel\", \"Portfolio\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember?where=Name='{{memberName}}'&projectsWhere=Level='{{projLevel}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Multiple Valid Member Ids",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberId = postman.getEnvironmentVariable(\"memberId\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var returnedProjectsList = _.chain(responseData.assets).map(function(pr){ return pr.projectRoles;}).flatten().map(function(mr){ return mr.project.name;}).unique();",
+									"var expectedProjectsList =  [\"EZ Support Inc.\",\"Development\",\"Corporate Website\",\"Maintenance\",\"Old Maintenance\",\"Old Website\"];",
+									"var countOfProjects = _.size(responseData.assets.map(function(mr){return mr.projectRoles}).flatten().map(function(mn){return mn.project.name;}));",
+									"var returnedMemberId = _.chain(responseData.assets).map(function(pr){return pr.member.oidToken;});",
+									"var strMemberID = JSON.stringify(returnedMemberId).replace(/\"/g,\"\").replace(\"[\",\"\").replace(\"]\",\"\");",
+									"",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Member Oid is correct ' + strMemberID] = memberId === strMemberID; ",
+									"tests['Projects are: ' + JSON.stringify(returnedProjectsList)] = _.isEqual(expectedProjectsList, returnedProjectsList);",
+									"tests['Contains ' + countOfProjects + ' projects'] = countOfProjects === 6;"
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberId\", \"Member:1057\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByMember?where=ID='{{memberId}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ByProject",
+			"description": "",
+			"item": [
+				{
+					"name": "Query for Member Oids By Project",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var responseData = JSON.parse(responseBody);",
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var statusCode = parseInt(200);",
+									"//var scopeOid = postman.getEnvironmentVariable(\"scopeOid\");",
+									"var projectId = \"Scope:1126\";",
+									"var projMembers = [",
+									"  [",
+									"    {",
+									"      \"_oid\": \"Scope:1067\",",
+									"      \"Members\": [",
+									"        {",
+									"          \"_oid\": \"Member:1057\"",
+									"        },",
+									"        {",
+									"          \"_oid\": \"Member:1034\"",
+									"        },",
+									"        {",
+									"          \"_oid\": \"Member:20\"",
+									"        },",
+									"        {",
+									"          \"_oid\": \"Member:1032\"",
+									"        },",
+									"        {",
+									"          \"_oid\": \"Member:1059\"",
+									"        }",
+									"      ]",
+									"    }",
+									"  ]",
+									"];",
+									"",
+									"",
+									"var scopeOid = postman.setEnvironmentVariable(\"scopeMembers\", responseData);",
+									"tests['I have the correct Project Members'] = _.matches(projMembers)(responseData);",
+									"tests['Status code is correct'] = responseCode.code === statusCode;"
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"projName\", \"Development\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/versionone/query.v1/",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"from\": \"Scope\",\r\n  \"select\": [\"Members\"],\r\n  \"where\": {\"Name\": \"{{projName}}\"}\r\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Query for Member Oids By Empty Project",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var responseData = JSON.parse(responseBody);",
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var statusCode = parseInt(200);",
+									"//var scopeOid = postman.getEnvironmentVariable(\"scopeOid\");",
+									"var projectId = \"Scope:1126\";",
+									"var projMembers = [",
+									"  [",
+									"    {",
+									"      \"_oid\": \"Member:1050\",",
+									"      \"Scopes\": []",
+									"    },",
+									"    {",
+									"      \"_oid\": \"Member:1052\",",
+									"      \"Scopes\": []",
+									"    },",
+									"    {",
+									"      \"_oid\": \"Member:1054\",",
+									"      \"Scopes\": []",
+									"    }",
+									"  ]",
+									"];",
+									"",
+									"",
+									"var scopeOid = postman.setEnvironmentVariable(\"scopeMembers\", responseData);",
+									"tests['I have the correct Project Members'] = _.matches(projMembers)(responseData);",
+									"tests['Status code is correct'] = responseCode.code === statusCode;"
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberName\", \"Bonnie BA\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/versionone/query.v1/",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"from\": \"Member\",\r\n  \"select\": [\"Scopes\"],\r\n  \"filter\": [\"-Scopes\"]\r\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "NoParameters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var projCount = responseData.total;",
+									"var projList = _.chain(responseData.assets).map(function(pr){return pr.project.name});",
+									"var uniqMemberRoles = _.chain(responseData.assets).map(function(pn){return pn.memberRoles;}).flatten().map(function(nr){return nr.member.defaultRole.name;}).unique();",
+									"var uniqMemberNames = _.chain(responseData.assets).map(function(pn){return pn.memberRoles;}).flatten().map(function(nr){return nr.member.name;}).unique();",
+									"",
+									"var expectedProjects = [\"System (All Projects)\",\"EZ Support Inc.\",\"Development\",\"Call Center\",\"Corporate Website\",\"Maintenance\",\"Release 0.5\",\"Release 0.9\",\"Old Maintenance\",\"Old Website\",\"Release 1.0\",\"Release 2.0\"];",
+									"var expectedUniqMemberRoles =   [\"System Admin\",\"Project Lead\",\"Team Member\",\"Customer\",\"Project Admin\",\"Visitor\"];",
+									"var countOfMemberRoles = _.size(responseData.assets.map(function(mr){return mr.memberRoles}).flatten().map(function(mn){return mn.member.name}));",
+									"var expectedUniqMemberNames = [\"Administrator\",\"Andre Agile\",\"Alfred Smith\",\"Claus Lead\",\"Willy Webguy\",\"Joe IT\",\"Quality Center\",\"Ellen Executive\",\"Ronnie Release\",\"Penelope Program\",\"Tammy Coder\",\"Danny Developer\",\"Boris Tester\",\"Vijay Vistor\"];",
+									"var countOfMemberNames = _.size(responseData.assets.map(function(mr){return mr.memberRoles}).flatten().map(function(mn){return mn.role.name}));",
+									"",
+									"//************TESTS************************",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Count of returned projects is correct: ' +  JSON.stringify(projCount)]= projCount === 12;",
+									"tests['List of returned projects is correct: ' + JSON.stringify(projList)] = _.isEqual(projList, expectedProjects);",
+									"tests['Total count of roles returned for ALL projects is correct: ' + JSON.stringify(countOfMemberRoles)] = countOfMemberRoles === 146;",
+									"tests['List of unique default roles is correct: ' + JSON.stringify(uniqMemberRoles) + ' compare to Expected: ' + JSON.stringify(expectedUniqMemberRoles)] = _.isEqual(uniqMemberRoles,expectedUniqMemberRoles);",
+									"tests['Total count of members returned for ALL projects is correct: ' + JSON.stringify(countOfMemberNames)] = countOfMemberNames === 146;",
+									"tests['List of unique member mames is correct: ' + JSON.stringify(uniqMemberNames) + ' compare to Expected: ' + JSON.stringify(expectedUniqMemberNames)] = _.isEqual(uniqMemberNames,expectedUniqMemberNames);",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Valid Project Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var projName = postman.getEnvironmentVariable(\"projName\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var membersList = _.chain(responseData.assets).map(function(pr){ return pr.memberRoles;}).flatten().map(function(mr){ return mr.member.name;}).unique();",
+									"var countOfMembers = _.size(responseData.assets.map(function(mr){return mr.memberRoles}).flatten().map(function(mn){return mn.member.name}));",
+									"var expectMemberList = [\"Administrator\",\"Andre Agile\",\"Alfred Smith\",\"Ellen Executive\",\"Penelope Program\"];",
+									"var returnedProjName = _.chain(responseData.assets).map(function(pr){return pr.project.name});",
+									"var strProjName = JSON.stringify(returnedProjName).replace(/\"/g,\"\").replace(\"[\",\"\").replace(\"]\",\"\");",
+									"",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Project Name is correct ' + strProjName] = projName === strProjName; ",
+									"tests['Members are correct: ' + JSON.stringify(membersList)] = _.isEqual(expectMemberList,membersList);",
+									"tests['Contains 5 members '] = countOfMembers === 5;"
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"projName\", \"Development\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject?where=Name='{{projName}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Invalid Project Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var projName = postman.getEnvironmentVariable(\"projName\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									"  \"message\": \"Invalid QueryFilter2 token Name='\",",
+									"  \"exceptions\": [",
+									"    {",
+									"      \"class\": \"System.FormatException\",",
+									"      \"message\": \"Invalid QueryFilter2 token Name='\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.Parsing.MismatchedCharException\",",
+									"      \"message\": \"Position 7: expecting ''', found '<EOF>'\"",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is \" + responseCode.code] = responseCode.code === 400;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData); ",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"projName\", \"&#\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject?where=Name='{{projName}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Project Name DNE",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var projName = postman.getEnvironmentVariable(\"projName\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									" \"total\": 0,",
+									" \"assets\": [ ]",
+									"};",
+									"",
+									"",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData); ",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"projName\", \"Popsicle\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject?where=Name='{{projName}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Invalid Project Attribute",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var projLevel = postman.getEnvironmentVariable(\"projLevel\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									"  \"message\": \"Invalid QueryFilter2 token Level='Portfolio'\",",
+									"  \"exceptions\": [",
+									"    {",
+									"      \"class\": \"System.FormatException\",",
+									"      \"message\": \"Invalid QueryFilter2 token Level='Portfolio'\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.MetaException\",",
+									"      \"message\": \"Unknown AttributeDefinition: Scope.Level\"",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is \" + responseCode.code] = responseCode.code === 400;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData); ",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"projLevel\", \"Portfolio\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject?where=Level='{{projLevel}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Valid Project ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var projId = postman.getEnvironmentVariable(\"projId\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var membersList = _.chain(responseData.assets).map(function(pr){ return pr.memberRoles;}).flatten().map(function(mr){ return mr.member.name;}).unique();",
+									"var expectedMembersList =  [\"Administrator\",\"Andre Agile\",\"Alfred Smith\",\"Boris Tester\",\"Claus Lead\",\"Willy Webguy\",\"Joe IT\",\"Quality Center\",\"Ellen Executive\",\"Penelope Program\",\"Ronnie Release\"];",
+									"var countOfMembers = _.size(responseData.assets.map(function(mr){return mr.memberRoles}).flatten().map(function(mn){return mn.role.name;}));",
+									"var returnedProjId = _.chain(responseData.assets).map(function(pr){return pr.project.oidToken;});",
+									"var strProjID = JSON.stringify(returnedProjId).replace(/\"/g,\"\").replace(\"[\",\"\").replace(\"]\",\"\");",
+									"",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Project Oid is correct ' + strProjID] = projId === strProjID; ",
+									"tests['Members are: ' + JSON.stringify(membersList)] = 1 === 1;",
+									"tests['Contains ' + JSON.stringify(countOfMembers) + ' members'] = countOfMembers === 5;"
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"projId\", \"Scope:1067\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject?where=ID='{{projId}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Invalid Project ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var projId = postman.getEnvironmentVariable(\"projId\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									"  \"message\": \"Invalid QueryFilter2 token ID='\",",
+									"  \"exceptions\": [",
+									"    {",
+									"      \"class\": \"System.FormatException\",",
+									"      \"message\": \"Invalid QueryFilter2 token ID='\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.Parsing.MismatchedCharException\",",
+									"      \"message\": \"Position 5: expecting ''', found '<EOF>'\"",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is \" + responseCode.code] = responseCode.code === 400;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData); ",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"projId\", \"&#\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject?where=ID='{{projId}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Project ID DNE",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var projId = postman.getEnvironmentVariable(\"projId\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									" \"total\": 0,",
+									" \"assets\": [ ]",
+									"};",
+									"",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData); ",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"projId\", \"Scope:21\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject?where=ID='{{projId}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?membersWhere Valid Member Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberName = postman.getEnvironmentVariable(\"memberName\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var returnedMemberName = _.chain(responseData.assets).map(function(pn){return pn.memberRoles;}).flatten().map(function(nr){return nr.member.name;}).unique();",
+									"var strMemberName = JSON.stringify(returnedMemberName).replace(\"[\",\"\").replace(\"]\",\"\").replace(/\"/g,\"\");",
+									"var returnedProjectList = _.chain(responseData.assets).flatten().map(function(nr){return nr.project.name;}).unique();",
+									"var expectedProjectList =  [\"EZ Support Inc.\",\"Development\",\"Corporate Website\",\"Maintenance\"];",
+									"var projListCount = responseData.assets.length;",
+									"",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Member Name is correct: ' + strMemberName] = memberName === strMemberName;",
+									"tests['Project List is correct ' + JSON.stringify(returnedProjectList)] = _.isEqual(expectedProjectList, returnedProjectList);",
+									"tests['Contains 4 projects'] = projListCount === 4;",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberName\", \"Ellen Executive\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject?membersWhere=Name='{{memberName}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?membersWhere Invalid Member Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var projName = postman.getEnvironmentVariable(\"memberName\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									"  \"message\": \"Invalid QueryFilter2 token Name='\",",
+									"  \"exceptions\": [",
+									"    {",
+									"      \"class\": \"System.FormatException\",",
+									"      \"message\": \"Invalid QueryFilter2 token Name='\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.Parsing.MismatchedCharException\",",
+									"      \"message\": \"Position 7: expecting ''', found '<EOF>'\"",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is \" + responseCode.code] = responseCode.code === 400;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData); ",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberName\", \"&#\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject?membersWhere=Name='{{memberName}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?membersWhere Member Name DNE",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberName = postman.getEnvironmentVariable(\"memberName\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									" \"total\": 0,",
+									" \"assets\": [ ]",
+									"};",
+									"",
+									"",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData); ",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberName\", \"Popsicle\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject?membersWhere=Name='{{memberName}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?membersWhere Valid Member ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberId = postman.getEnvironmentVariable(\"memberId\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var projList = _.chain(responseData.assets).map(function(pr){ return pr.project.name;}).unique().value();",
+									"var expectedProjectList =  [\"EZ Support Inc.\",\"Development\",\"Corporate Website\",\"Maintenance\"];",
+									"var returnedMemberId = _.chain(responseData.assets).map(function(pn){return pn.memberRoles;}).flatten().map(function(nr){return nr.member.oidToken;}).unique();",
+									"var strMemberId = JSON.stringify(returnedMemberId).replace(\"[\",\"\").replace(\"]\",\"\").replace(/\"/g,\"\");",
+									"var projectListCount = responseData.assets.length;",
+									"",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Member ID is correct: ' + strMemberId] = memberId === strMemberId; ",
+									"tests['Contains 4 projects'] = projectListCount === 4;",
+									"tests['Projects are correct: ' + JSON.stringify(projList)] = _.isEqual(expectedProjectList,projList);",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberId\", \"Member:1057\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject?membersWhere=ID='{{memberId}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?membersWhere Invalid Member ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberId = postman.getEnvironmentVariable(\"memberId\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									"  \"message\": \"Invalid QueryFilter2 token ID='5555'\",",
+									"  \"exceptions\": [",
+									"    {",
+									"      \"class\": \"System.FormatException\",",
+									"      \"message\": \"Invalid QueryFilter2 token ID='5555'\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.OidException\",",
+									"      \"message\": \"Invalid OID token: 5555\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.MetaException\",",
+									"      \"message\": \"Unknown token: 5555\"",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is \" + responseCode.code] = responseCode.code === 400;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData); ",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberId\", \"5555\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject?membersWhere=ID='{{memberId}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?membersWhere Member ID  DNE",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberId = postman.getEnvironmentVariable(\"memberId\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									" \"total\": 0,",
+									" \"assets\": [ ]",
+									"};",
+									"",
+									"",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData); ",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberId\", \"Member:5555\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject?membersWhere=Name='{{memberName}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Valid Project Id & membersWhere Valid Member Id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberId = postman.getEnvironmentVariable(\"memberId\");",
+									"var projId = postman.getEnvironmentVariable(\"projId\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var returnedProjectId = _.chain(responseData.assets).map(function(pr){return pr.project.oidToken;});",
+									"var strProjectID = JSON.stringify(returnedProjectId).replace(/\"/g,\"\").replace(\"[\",\"\").replace(\"]\",\"\");",
+									"var returnedMemberId = _.chain(responseData.assets).map(function(pr){ return pr.memberRoles;}).flatten().map(function(mr){ return mr.member.oidToken;});",
+									"var strMemberID = JSON.stringify(returnedMemberId).replace(/\"/g,\"\").replace(\"[\",\"\").replace(\"]\",\"\");",
+									"var expected = {",
+									"  \"total\": 1,",
+									"  \"assets\": [",
+									"    {",
+									"      \"project\": {",
+									"        \"oidToken\": \"Scope:1067\",",
+									"        \"name\": \"Development\"",
+									"      },",
+									"      \"memberRoles\": [",
+									"        {",
+									"          \"isOwner\": true,",
+									"          \"member\": {",
+									"            \"oidToken\": \"Member:1057\",",
+									"            \"name\": \"Ellen Executive\",",
+									"            \"email\": \"ellen.executive@company.com\",",
+									"            \"defaultRole\": {",
+									"              \"oidToken\": \"Role:7\",",
+									"              \"name\": \"Customer\"",
+									"            }",
+									"          },",
+									"          \"role\": {",
+									"            \"oidToken\": \"Role:7\",",
+									"            \"name\": \"Customer\"",
+									"          }",
+									"        }",
+									"      ]",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Member Oid is correct ' + strMemberID] = memberId === strMemberID; ",
+									"tests['Project Oid is correct ' + strProjectID] = projId === strProjectID; ",
+									"tests['JSON response is correct'] = _.matches(expected)(responseData);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberId\", \"Member:1057\");",
+									"postman.setEnvironmentVariable(\"projId\", \"Scope:1067\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject?where=ID='{{projId}}'&membersWhere=ID='{{memberId}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Valid Project Id & membersWhere Invalid Member Id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberId = postman.getEnvironmentVariable(\"memberId\");",
+									"var projId = postman.getEnvironmentVariable(\"projId\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									"  \"message\": \"Invalid QueryFilter2 token ID='1067'\",",
+									"  \"exceptions\": [",
+									"    {",
+									"      \"class\": \"System.FormatException\",",
+									"      \"message\": \"Invalid QueryFilter2 token ID='1067'\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.OidException\",",
+									"      \"message\": \"Invalid OID token: 1067\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.MetaException\",",
+									"      \"message\": \"Unknown token: 1067\"",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is \" + responseCode.code] = responseCode.code === 400;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData);",
+									"",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberId\", \"Member:1048\");",
+									"postman.setEnvironmentVariable(\"projId\", \"1067\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject?where=ID='{{projId}}'&membersWhere=ID='{{memberId}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Valid Project Name & membersWhere Valid Member Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberName = postman.getEnvironmentVariable(\"memberName\");",
+									"var projName = postman.getEnvironmentVariable(\"projName\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var returnedProjectName = _.chain(responseData.assets).map(function(pr){return pr.project.name;});",
+									"var strProjectName = JSON.stringify(returnedProjectName).replace(/\"/g,\"\").replace(\"[\",\"\").replace(\"]\",\"\");",
+									"var returnedMemberName = _.chain(responseData.assets).map(function(pr){ return pr.memberRoles;}).flatten().map(function(mr){ return mr.member.name;});",
+									"var strMemberName = JSON.stringify(returnedMemberName).replace(/\"/g,\"\").replace(\"[\",\"\").replace(\"]\",\"\");",
+									"var expected = {",
+									"  \"total\": 1,",
+									"  \"assets\": [",
+									"    {",
+									"      \"project\": {",
+									"        \"oidToken\": \"Scope:1067\",",
+									"        \"name\": \"Development\"",
+									"      },",
+									"      \"memberRoles\": [",
+									"        {",
+									"          \"isOwner\": true,",
+									"          \"member\": {",
+									"            \"oidToken\": \"Member:1057\",",
+									"            \"name\": \"Ellen Executive\",",
+									"            \"email\": \"ellen.executive@company.com\",",
+									"            \"defaultRole\": {",
+									"              \"oidToken\": \"Role:7\",",
+									"              \"name\": \"Customer\"",
+									"            }",
+									"          },",
+									"          \"role\": {",
+									"            \"oidToken\": \"Role:7\",",
+									"            \"name\": \"Customer\"",
+									"          }",
+									"        }",
+									"      ]",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests['Member Name is correct ' + strMemberName] = memberName === strMemberName; ",
+									"tests['Project Name is correct ' + strProjectName] = projName === strProjectName; ",
+									"tests['JSON response is correct'] = _.matches(expected)(responseData);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberName\", \"Ellen Executive\");",
+									"postman.setEnvironmentVariable(\"projName\", \"Development\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject?where=Name='{{projName}}'&membersWhere=Name='{{memberName}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Valid Project name & membersWhere Invalid Member Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberName = postman.getEnvironmentVariable(\"memberName\");",
+									"var projName = postman.getEnvironmentVariable(\"projName\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									"  \"message\": \"Invalid QueryFilter2 token Name='\",",
+									"  \"exceptions\": [",
+									"    {",
+									"      \"class\": \"System.FormatException\",",
+									"      \"message\": \"Invalid QueryFilter2 token Name='\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.Parsing.MismatchedCharException\",",
+									"      \"message\": \"Position 7: expecting ''', found '<EOF>'\"",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is \" + responseCode.code] = responseCode.code === 400;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData);",
+									"",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberName\", \"Claus Lead\");",
+									"postman.setEnvironmentVariable(\"projName\", \"&&\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject?where=Name='{{projName}}'&membersWhere=Name='{{memberName}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Valid Project Name & membersWhere Invalid Member Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberName = postman.getEnvironmentVariable(\"memberName\");",
+									"var projName = postman.getEnvironmentVariable(\"projName\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									"  \"message\": \"Invalid QueryFilter2 token Name='\",",
+									"  \"exceptions\": [",
+									"    {",
+									"      \"class\": \"System.FormatException\",",
+									"      \"message\": \"Invalid QueryFilter2 token Name='\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.Parsing.MismatchedCharException\",",
+									"      \"message\": \"Position 7: expecting ''', found '<EOF>'\"",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is \" + responseCode.code] = responseCode.code === 400;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberName\", \"Claus Lead\");",
+									"postman.setEnvironmentVariable(\"projName\", \"&&\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject?where=Name='{{projName}}'&membersWhere=Name='{{memberName}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "?where Valid Project Name & membersWhere Invalid Member Attribute",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var memberCreatedBy = postman.getEnvironmentVariable(\"memberCreatedBy\");",
+									"var projName = postman.getEnvironmentVariable(\"projName\");",
+									"var responseData = JSON.parse(responseBody);",
+									"",
+									"var expected = {",
+									"  \"message\": \"Invalid QueryFilter2 token CreatedBy='Administrator'\",",
+									"  \"exceptions\": [",
+									"    {",
+									"      \"class\": \"System.FormatException\",",
+									"      \"message\": \"Invalid QueryFilter2 token CreatedBy='Administrator'\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.OidException\",",
+									"      \"message\": \"Invalid OID token: Administrator\"",
+									"    },",
+									"    {",
+									"      \"class\": \"VersionOne.MetaException\",",
+									"      \"message\": \"Unknown token: Administrator\"",
+									"    }",
+									"  ]",
+									"};",
+									"",
+									"tests[\"Status code is \" + responseCode.code] = responseCode.code === 400;",
+									"tests['Expect exception message'] = _.matches(expected)(responseData);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"postman.setEnvironmentVariable(\"memberCreatedBy\", \"Administrator\");",
+									"postman.setEnvironmentVariable(\"projName\", \"Development\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles/ByProject?where=Name='{{projName}}'&membersWhere=CreatedBy='{{memberCreatedBy}}'",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "RAML",
+			"description": "",
+			"item": [
+				{
+					"name": "ProjectRoles",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var statusCode = parseInt(200);",
+									"var baseUri = \"baseUri: \" + rootUrl + \"/api\";",
+									"var byProjCombo = \"?where=Name='New%20Project'&membersWhere=Name='John%20Doe'\";",
+									"var byMemberCombo = \"?where=Name='John%20Doe'&projectsWhere=Name='New%20Project'\";",
+									"",
+									"tests['Status code is correct'] = responseCode.code === statusCode;",
+									"tests['Contains RAML 1.0 contract'] = _.includes(responseBody, 'RAML 1.0');",
+									"tests['The title of the RAML contract is displayed'] = _.includes(responseBody, 'title: Project Roles API');",
+									"tests['Contains baseUri value'] = _.includes(responseBody, baseUri);",
+									"tests['Contains /ByProject'] = _.includes(responseBody, '/ByProject');",
+									"tests['Contains ByProject?where query filter example'] = _.includes(responseBody, 'example: where=Name=\\'New Project\\'');",
+									"tests['Contains ByProject?membersWhere query filter example'] = _.includes(responseBody, 'example: membersWhere=Nickname=\\'JDoe\\'');",
+									"tests['Contains ByProject?where&membersWhere combo query filter example'] = _.includes(responseBody, byProjCombo);",
+									"tests['Contains /ByMember'] = _.includes(responseBody, '/ByMember');",
+									"tests['Contains ByMember?where query filter example'] = _.includes(responseBody, 'example: where=Nickname=\\'JDoe\\'');",
+									"tests['Contains ByMember?projectsWhere query example'] = _.includes(responseBody, 'example: projectsWhere=Name=\\'New Project\\'');",
+									"tests['Contains ByMember?where&projectsWhere combo query filer example'] = _.includes(responseBody, byMemberCombo);",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/xhtml+xml",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Project Roles RAML",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var rootUrl = postman.getGlobalVariable(\"rootURL\");",
+									"var statusCode = parseInt(200);",
+									"var baseUri = \"baseUri: \" + rootUrl + \"/api\";",
+									"var projectWhere = \"?where=Name='New%20Project'\";",
+									"var projectMembersWhere = \"membersWhere=Nickname='JDoe'\";",
+									"var byProjCombo = \"?where=Name='New%20Project'&membersWhere=Name='John%20Doe'\";",
+									"var memberWhere = \"?where=Name='John%20Doe'\";",
+									"var memberProjectsWhere = \"projectsWhere=Name='New%20Project'\";",
+									"var byMemberCombo = \"?where=Name='John%20Doe'&projectsWhere=Name='New%20Project'\";",
+									"",
+									"tests['Status code is correct'] = responseCode.code = statusCode;",
+									"tests['Contains RAML 1.0 contract'] = _.includes(responseBody, 'RAML 1.0');",
+									"tests['The title of the RAML contract is displayed'] = _.includes(responseBody, 'title: Project Roles API');",
+									"tests['Contains baseUri value'] = _.includes(responseBody, baseUri);",
+									"tests['Contains /ByProject'] = _.includes(responseBody, '/ByProject');",
+									"tests['Contains ByProject?where query filter example'] = _.includes(responseBody, projectWhere);",
+									"tests['Contains ByProject?membersWhere query filter example'] = _.includes(responseBody, projectMembersWhere);",
+									"tests['Contains ByProject?where&membersWhere combo query filter example'] = _.includes(responseBody, byProjCombo);",
+									"tests['Contains /ByMember'] = _.includes(responseBody, '/ByMember');",
+									"tests['Contains ByMember?where query filter example'] = _.includes(responseBody, memberWhere);",
+									"tests['Contains ByMember?projectsWhere query example'] = _.includes(responseBody, memberProjectsWhere);",
+									"tests['Contains ByMember?where&projectsWhere combo query filter example'] = _.includes(responseBody, byMemberCombo);",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{rootURL}}/api/ProjectRoles",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4=",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
